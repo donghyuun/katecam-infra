@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    networks:
+      - katecam-backend
+    ports:
+      - "80:80"
+    volumes:
+      - /home/ubuntu/nginx/conf.d/:/etc/nginx/conf.d
+      - /home/ubuntu/nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    command: -nginx.scrape-uri=http://nginx-container/nginx_status
+    ports:
+      - "9113:9113"
+    networks:
+      - katecam-backend
+
+networks:
+  katecam-backend:
+    external: true
+

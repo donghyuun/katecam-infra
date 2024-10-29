@@ -1,0 +1,16 @@
+services:
+  api:
+    image: bomul0524/katecam-backend:latest
+    container_name: katecam-backend-second
+    environment:
+      - LANG=ko_KR.UTF-8
+      - HTTP_PORT=8081
+    ports:
+      - '8081:8080'
+    networks:
+      - katecam-backend
+
+networks:
+  katecam-backend:
+    external: true
+

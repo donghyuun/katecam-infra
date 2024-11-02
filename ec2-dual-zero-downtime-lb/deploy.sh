@@ -34,6 +34,7 @@ echo "AFTER_PORT=$AFTER_PORT_FIRST" >> $LOCAL_INFO_FILE_FIRST
 
 # 첫 번째 인스턴스 배포 및 서버 응답 확인
 ssh -i $KATECAM_PEM_KEY_PATH $REMOTE_USER@$REMOTE_IP_FIRST 'bash -s' <<EOF
+sudo docker-compose -f /home/ubuntu/docker-compose.katecam-backend-$AFTER_COLOR_FIRST.yml pull
 sudo docker-compose -p katecam-backend-$AFTER_COLOR_FIRST -f /home/ubuntu/docker-compose.katecam-backend-$AFTER_COLOR_FIRST.yml up -d
 
 # 서버 응답 확인
@@ -41,11 +42,11 @@ success=0
 for cnt in {1..10}; do
     STATUS=\$(curl -s http://127.0.0.1:${AFTER_PORT_FIRST}/actuator/health | jq -r '.status')
     if [ "\$STATUS" == "UP" ]; then
-	echo "서버가 정상적으로 준비되었습니다. 테이블 생성 확인 완료"
+        echo "서버가 정상적으로 준비되었습니다. 테이블 생성 확인 완료"
         success=1
         break
     else
-	echo "서버가 아직 준비되지 않았습니다. ${cnt}/10 시도중..."
+        echo "서버가 아직 준비되지 않았습니다. ${cnt}/10 시도중..."
         sleep 10
     fi
 done
@@ -86,6 +87,7 @@ echo "AFTER_PORT=$AFTER_PORT_SECOND" >> $LOCAL_INFO_FILE_SECOND
 
 # 두 번째 인스턴스 배포 및 서버 응답 확인
 ssh -i $KATECAM_PEM_KEY_PATH $REMOTE_USER@$REMOTE_IP_SECOND 'bash -s' <<EOF
+sudo docker-compose -f /home/ubuntu/docker-compose.katecam-backend-$AFTER_COLOR_SECOND.yml pull
 sudo docker-compose -p katecam-backend-$AFTER_COLOR_SECOND -f /home/ubuntu/docker-compose.katecam-backend-$AFTER_COLOR_SECOND.yml up -d
 
 # 서버 응답 확인
@@ -93,11 +95,11 @@ success=0
 for cnt in {1..10}; do
     STATUS=\$(curl -s http://127.0.0.1:${AFTER_PORT_SECOND}/actuator/health | jq -r '.status')
     if [ "\$STATUS" == "UP" ]; then
-	echo "서버가 정상적으로 준비되었습니다. 테이블 생성 확인 완료"
+        echo "서버가 정상적으로 준비되었습니다. 테이블 생성 확인 완료"
         success=1
         break
     else
-	echo "서버가 아직 준비되지 않았습니다. ${cnt}/10 시도중..."
+        echo "서버가 아직 준비되지 않았습니다. ${cnt}/10 시도중..."
         sleep 10
     fi
 done
@@ -126,7 +128,7 @@ if [ $success_first -eq 1 ] && [ $success_second -eq 1 ]; then
 
     # 첫 번째 인스턴스 이전 컨테이너 종료
     ssh -i $KATECAM_PEM_KEY_PATH $REMOTE_USER@$REMOTE_IP_FIRST "sudo docker-compose -p katecam-backend-$BEFORE_COLOR_FIRST -f $DOCKER_COMPOSE_PATH/docker-compose.katecam-backend-$BEFORE_COLOR_FIRST.yml down"
-    
+
     # 두 번째 인스턴스 이전 컨테이너 종료
     ssh -i $KATECAM_PEM_KEY_PATH $REMOTE_USER@$REMOTE_IP_SECOND "sudo docker-compose -p katecam-backend-$BEFORE_COLOR_SECOND -f $DOCKER_COMPOSE_PATH/docker-compose.katecam-backend-$BEFORE_COLOR_SECOND.yml down"
 
@@ -135,15 +137,13 @@ if [ $success_first -eq 1 ] && [ $success_second -eq 1 ]; then
 else
     # 배포 실패 시 새로 시작된 컨테이너 종료
     echo "배포에 실패하여 새로 시작된 컨테이너를 종료합니다."
-    
+
     # 첫 번째 인스턴스 새 컨테이너 종료
     ssh -i $KATECAM_PEM_KEY_PATH $REMOTE_USER@$REMOTE_IP_FIRST "sudo docker-compose -p katecam-backend-$AFTER_COLOR_FIRST -f $DOCKER_COMPOSE_PATH/docker-compose.katecam-backend-$AFTER_COLOR_FIRST.yml down"
-    
+
     # 두 번째 인스턴스 새 컨테이너 종료
     ssh -i $KATECAM_PEM_KEY_PATH $REMOTE_USER@$REMOTE_IP_SECOND "sudo docker-compose -p katecam-backend-$AFTER_COLOR_SECOND -f $DOCKER_COMPOSE_PATH/docker-compose.katecam-backend-$AFTER_COLOR_SECOND.yml down"
-    
+
     echo "Rollback Completed. NGINX와 기존 컨테이너 상태는 유지됩니다."
     exit 1
 fi
-
-

@@ -39,7 +39,7 @@ done
 
 if [ $success -eq 0 ]
 then
-	echo "새로운 서버가 정상적으로 구동되지 않았습니다. 기존 서버를 유지합니다."
+	echo "새로운 서버가 정상적으로 구동되지 않았습니다. 새 서버를 종료하고 기존 서버를 유지합니다."
 	sudo docker-compose -p katecam-backend-${AFTER_COLOR} -f /home/ubuntu/docker-compose.katecam-backend-${AFTER_COLOR}.yml down
 	exit 1
 fi

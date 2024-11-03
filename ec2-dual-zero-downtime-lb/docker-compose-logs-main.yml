@@ -1,0 +1,11 @@
+services:
+  dozzle:
+    container_name: dozzle-main-container
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DOZZLE_HOSTNAME=katecam-first
+      - DOZZLE_REMOTE_AGENT=3.35.66.77:7007
+    ports:
+      - 7070:8080
